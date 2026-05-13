@@ -26,7 +26,26 @@
       --font-body:    'Barlow', sans-serif;
     }
 
-    html { scroll-behavior: smooth; }
+    html.lenis,html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: hidden; }
+    .lenis.lenis-smooth iframe { pointer-events: none; }
+
+    .section-rise {
+      opacity: 0;
+      transform: translateY(80px);
+      transition: opacity 1s cubic-bezier(.2,.85,.25,1), transform 1s cubic-bezier(.2,.85,.25,1);
+    }
+    .section-rise.in-view { opacity: 1; transform: translateY(0); }
+
+    .svc-grid > a {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity .8s cubic-bezier(.2,.85,.25,1), transform .8s cubic-bezier(.2,.85,.25,1);
+    }
+    .svc-grid.in-view > a { opacity: 1; transform: translateY(0); }
+    .svc-grid.in-view > a:nth-child(n) { transition-delay: calc(0.05s * var(--i, 0)); }
     body {
       background: var(--dark);
       color: var(--light);
@@ -388,7 +407,7 @@
 </section>
 
 <!-- SERVICES GRID -->
-<section class="services-section">
+<section class="services-section section-rise">
   <div class="services-tag">Nossos serviços</div>
 
   <div class="svc-grid">
@@ -721,5 +740,26 @@
   </svg>
 </a>
 
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script>
+  const lenis = new Lenis({
+    duration: 1.4,
+    easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true, smoothTouch: false
+  });
+  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+  document.documentElement.classList.add('lenis', 'lenis-smooth');
+
+  const riseObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in-view');
+        riseObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+  document.querySelectorAll('.section-rise, .svc-grid').forEach(el => riseObs.observe(el));
+</script>
 </body>
 </html>

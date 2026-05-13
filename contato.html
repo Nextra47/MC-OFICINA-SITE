@@ -26,7 +26,17 @@
       --font-body:    'Barlow', sans-serif;
     }
 
-    html { scroll-behavior: smooth; }
+    html.lenis,html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-stopped { overflow: hidden; }
+    .lenis.lenis-smooth iframe { pointer-events: none; }
+
+    .section-rise {
+      opacity: 0;
+      transform: translateY(80px);
+      transition: opacity 1s cubic-bezier(.2,.85,.25,1), transform 1s cubic-bezier(.2,.85,.25,1);
+    }
+    .section-rise.in-view { opacity: 1; transform: translateY(0); }
     body {
       background: var(--dark);
       color: var(--light);
@@ -490,7 +500,7 @@
 </section>
 
 <!-- CONTACT -->
-<section class="contact-section">
+<section class="contact-section section-rise">
 
   <div class="contact-intro">
     <div class="intro-tag">Fale com a gente</div>
@@ -692,5 +702,26 @@
   reveals.forEach(r => obs.observe(r));
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script>
+  const lenis = new Lenis({
+    duration: 1.4,
+    easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true, smoothTouch: false
+  });
+  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+  document.documentElement.classList.add('lenis', 'lenis-smooth');
+
+  const riseObs3 = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in-view');
+        riseObs3.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+  document.querySelectorAll('.section-rise').forEach(el => riseObs3.observe(el));
+</script>
 </body>
 </html>
